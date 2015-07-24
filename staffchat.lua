@@ -36,17 +36,16 @@ hook.Add( "PlayerSay", "Staff Chat", function( ply, text )
 			end
 
 			local send = rest:sub( #pomf + 2, #text )
-
 			targ:ChatPrint( "(From " .. ply:Nick() .. ") " .. send )
+
+			local str = "(" .. ply:Nick() .. " -> " .. targ:Nick() .. ") " .. send
+			ServerLog( "SC: " .. str .. "\n" )
 
 			if not isAdmin( targ ) then
 				for k, v in pairs( player.GetAll() ) do
 					if not isAdmin( v ) then continue end
 
-					local str = "(" .. ply:Nick() .. " -> " .. targ:Nick() .. ") " .. send
-
 					v:ChatPrint( str )
-					ServerLog( "SC: " .. str .. "\n" )
 				end
 			else ply:ChatPrint( "(To " .. targ:Nick() .. ") " .. send ) end
 		else

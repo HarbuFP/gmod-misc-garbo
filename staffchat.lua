@@ -38,7 +38,6 @@ hook.Add( "PlayerSay", "Staff Chat", function( ply, text )
 			local send = rest:sub( #pomf + 2, #text )
 
 			targ:ChatPrint( "(From " .. ply:Nick() .. ") " .. send )
-			--ply:ChatPrint( "(To " .. targ:Nick() .. ") " .. send )
 
 			if not isAdmin( targ ) then
 				for k, v in pairs( player.GetAll() ) do
@@ -49,7 +48,7 @@ hook.Add( "PlayerSay", "Staff Chat", function( ply, text )
 					v:ChatPrint( str )
 					ServerLog( "SC: " .. str .. "\n" )
 				end
-			end
+			else ply:ChatPrint( "(To " .. targ:Nick() .. ") " .. send ) end
 		else
 			local is_all = text:Left( start ) == "@!"
 			if is_all then start = start + 1 end

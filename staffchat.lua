@@ -52,26 +52,29 @@ hook.Add( "PlayerSay", "Staff Chat", function( ply, text )
 			"private messaging: @ playername text",
 			"- staff to nonstaff are shown to all staff. staff to staff are private.",
 			"global messaging: @! text",
+			"anon global messaging: @@ text",
 		} ) do
 			ply:ChatPrint( v )
 		end
 	else
 		local start = 2
-		local is_all = text:Left( start ) == "@!"
+		local anon = text:Left( start ) == "@@"
+		local is_all = text:Left( start ) == "@!" or anon
 
 		if is_all then start = start + 1 end
 		if text:sub( start, start ) == " " then start = start + 1 end
 
 		local send = text:sub( start, #text )
-		local str = ( is_all and "(GLOBAL) " or "(STAFF) " ) .. ply:Nick() .. ": " .. send
+		local tostaff_str = ( anon and "(ANON GLOBAL) " or is_all and "(GLOBAL) " or "(STAFF) " ) .. ply:Nick() .. ": " .. send
+		local normal_str = ( anon and "(GLOBAL) " or is_all and "(GLOBAL) " or "(STAFF) " ) .. send
 
 		for k, v in pairs( player.GetAll() ) do
 			if not is_all and not isAdmin( v ) then continue end
 
-			v:ChatPrint( str )
+			v:ChatPrint( isAdmin( v ) and tostaff_str or normal_str )
 		end
 
-		ServerLog( "SC: " .. str .. "\n" )
+		ServerLog( "SC: " .. tostaff_str .. "\n" )
 	end
 
 	return ""

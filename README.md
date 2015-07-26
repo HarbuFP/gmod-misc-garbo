@@ -1,5 +1,3 @@
-# gmod-misc-garbo
-
 # staffchat.lua
 Adds some chat commands related to admin chat.
 - Staff group chat: @ text

@@ -1,8 +1,8 @@
-if not sql.TableExists( "ipalts" ) then
-	sql.Query( "CREATE TABLE IF NOT EXISTS ipalts ( ip TEXT NOT NULL PRIMARY KEY, data TEXT );" )
+if not sql.TableExists( "_ipalts" ) then
+	sql.Query( "CREATE TABLE IF NOT EXISTS _ipalts ( ip TEXT NOT NULL PRIMARY KEY, data TEXT );" )
 end
-if not sql.TableExists( "altips" ) then
-	sql.Query( "CREATE TABLE IF NOT EXISTS ipalts ( id TEXT NOT NULL PRIMARY KEY, data TEXT );" )
+if not sql.TableExists( "_altips" ) then
+	sql.Query( "CREATE TABLE IF NOT EXISTS _altips ( id TEXT NOT NULL PRIMARY KEY, data TEXT );" )
 end
 
 local function aNotify( str )
@@ -24,7 +24,7 @@ end
 	}
 */
 local function getAccountsFromIP( ip )
-	local data = sql.QueryValue( "SELECT data FROM ipalts WHERE ip = " .. SQLStr( ip ) .. " LIMIT 1;" )
+	local data = sql.QueryValue( "SELECT data FROM _ipalts WHERE ip = " .. SQLStr( ip ) .. " LIMIT 1;" )
 	return data and util.JSONToTable( data ) or {}
 end
 local function addAccountToIP( ip, data, ply )
@@ -34,7 +34,7 @@ local function addAccountToIP( ip, data, ply )
 		when = os.time()
 	}
 
-	sql.Query( "REPLACE INTO ipalts ( ip, data ) VALUES ( " .. SQLStr( ip ) .. ", " .. SQLStr( util.TableToJSON( data ) ) .. " );" )
+	sql.Query( "REPLACE INTO _ipalts ( ip, data ) VALUES ( " .. SQLStr( ip ) .. ", " .. SQLStr( util.TableToJSON( data ) ) .. " );" )
 end
 
 /**
@@ -44,13 +44,13 @@ end
 	}
 */
 local function getIPsFromAccount( id )
-	local data = sql.QueryValue( "SELECT data FROM altips WHERE id = " .. SQLStr( id ) .. " LIMIT 1;" )
+	local data = sql.QueryValue( "SELECT data FROM _altips WHERE id = " .. SQLStr( id ) .. " LIMIT 1;" )
 	return data and util.JSONToTable( data ) or {}
 end
 local function addIPToAccount( id, data, ip )
 	data[ #data + 1 ] = ip
 
-	sql.Query( "REPLACE INTO altips ( id, data ) VALUES ( " .. SQLStr( id ) .. ", " .. SQLStr( util.TableToJSON( data ) ) .. " );" )
+	sql.Query( "REPLACE INTO _altips ( id, data ) VALUES ( " .. SQLStr( id ) .. ", " .. SQLStr( util.TableToJSON( data ) ) .. " );" )
 end
 
 /**
@@ -100,14 +100,20 @@ end
 local function getAllData( original_ip, original_id )
 	local ips, accounts = loop( getIPsFromAccount( original_id ), getAccountsFromIP( original_ip ) )
 	
-	return accounts
+	return ips, accounts
+end
+
+function util.getAllData( ply )
+	local ips, accounts = loop( getIPsFromAccount( ply:SteamID() ), getAccountsFromIP( string.Explode( ":", ply:IPAddress() )[1] ) )
+	
+	return ips, accounts
 end
 
 hook.Add( "PlayerInitialSpawn", "IP Check", function( ply )
 	local ip = string.Explode( ":", ply:IPAddress() )[1]
 	if not ip then return end -- ?
 
-	local data = getAllData( ip, ply:SteamID() )
+	local _ips, data = getAllData( ip, ply:SteamID() )
 
 	local alts = false
 	local found = false
@@ -124,6 +130,7 @@ hook.Add( "PlayerInitialSpawn", "IP Check", function( ply )
 
 	if not found then
 		addAccountToIP( ip, data, ply )
+		addIPToAccount( ply:SteamID(), _ips, ip )
 	end
 
 	ply.alt_data = data

@@ -25,7 +25,7 @@ end
 */
 local function getAccountsFromIP( ip )
 	local data = sql.QueryValue( "SELECT data FROM ipalts WHERE ip = " .. SQLStr( ip ) .. " LIMIT 1;" )
-	return data or {}
+	return data and util.JSONToTable( data ) or {}
 end
 local function addAccountToIP( ip, data, ply )
 	data[ #data + 1 ] = {
@@ -45,7 +45,7 @@ end
 */
 local function getIPsFromAccount( id )
 	local data = sql.QueryValue( "SELECT data FROM altips WHERE id = " .. SQLStr( id ) .. " LIMIT 1;" )
-	return data or {}
+	return data and util.JSONToTable( data ) or {}
 end
 local function addIPToAccount( id, data, ip )
 	data[ #data + 1 ] = ip

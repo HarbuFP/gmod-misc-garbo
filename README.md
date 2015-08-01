@@ -11,3 +11,12 @@ FP thread: http://facepunch.com/showthread.php?t=1467461
 
 # rtd.lua
 Barebones RTD script that is easily edited with minimal Lua knowledge.
+
+# altcheck.lua
+Half-working alt detection based on IPs and SteamIDs.
+
+# entsave.lua
+Saving entities across maps.
+
+# nextmap.lua
+Randomizing TTT nextmap and voting to change the map.

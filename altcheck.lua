@@ -1,3 +1,8 @@
+local plugins = GetGlobalString( "wfPlugins", "" )
+if not table.HasValue( string.Explode( ";", plugins ), "altcheck" ) then
+	SetGlobalString( "wfPlugins", plugins .. ";altcheck" )
+end
+
 if not sql.TableExists( "_ipalts" ) then
 	sql.Query( "CREATE TABLE IF NOT EXISTS _ipalts ( ip TEXT NOT NULL PRIMARY KEY, data TEXT );" )
 end

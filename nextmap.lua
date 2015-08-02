@@ -1,6 +1,11 @@
 game.MapDecided = game.MapDecided or false
 game.BadMaps = game.BadMaps or {}
 
+local plugins = GetGlobalString( "wfPlugins", "" )
+if not table.HasValue( string.Explode( ";", plugins ), "nextmap" ) then
+	SetGlobalString( "wfPlugins", plugins .. ";nextmap" )
+end
+
 local fuck = CurTime() + 60*3
 hook.Add( "InitPostEntity", "Map Picker", function()
 	if file.Exists( "maps_old.txt", "DATA" ) then

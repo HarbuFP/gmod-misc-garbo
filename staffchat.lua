@@ -1,3 +1,8 @@
+local plugins = GetGlobalString( "wfPlugins", "" )
+if not table.HasValue( string.Explode( ";", plugins ), "adminchat" ) then
+	SetGlobalString( "wfPlugins", plugins .. ";adminchat" )
+end
+
 local function isAdmin( ply )
 	if not IsValid( ply ) then return false end
 
@@ -49,7 +54,7 @@ hook.Add( "PlayerSay", "Staff Chat", function( ply, text )
 	elseif text:lower():Trim() == "@" then
 		for k, v in pairs( {
 			"staff only chat: @ text",
-			"private messaging: @ playername text",
+			"private messaging: @p playername text",
 			"- staff to nonstaff are shown to all staff. staff to staff are private.",
 			"global messaging: @! text",
 			"anon global messaging: @@ text",

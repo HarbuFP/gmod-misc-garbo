@@ -1,4 +1,4 @@
--- this shit was painful to make
+-- this shit was painful to make. it's also unorganized and messy so you're probably gonna find redundant/stupid things.
 local function isVowel( str )
 	str = str:lower()
 	return not ( str ~= "a" and str ~= "e" and str ~= "i" and str ~= "o" and str ~= "u" )

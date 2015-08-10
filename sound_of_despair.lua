@@ -1,4 +1,4 @@
--- this shit was painful to make. it's also unorganized and messy so you're probably gonna find redundant/stupid things.
+
 local function isVowel( str )
 	str = str:lower()
 	return not ( str ~= "a" and str ~= "e" and str ~= "i" and str ~= "o" and str ~= "u" )
@@ -36,17 +36,23 @@ local function cleanName( str )
 	return s
 end
 
-function util.babyName( str )
+local function blank( s )
+	return s
+end
+
+function util.babyName( str, deb )
 	str =  cleanName( str )
 
-	local foreign = { "x", "z", "p", "h" } -- french/weird shit = x, chinese/weird shit = z
+	local foreign = { "x", "p", "h" }
 	local names = { 
-		{ "Baby%s", string.lower },
-		{ "%s Jr", function(s) return s end },
+		{ "baby%s", string.lower },
+		{ "%s Jr", blank },
+		{ "xiao %s%s", string.lower, true },
+		{ "little %s", string.lower },
 		{ "%s CENA", string.upper },
 	}
 
-	local db = function(s) end--PrintMessage( HUD_PRINTCONSOLE, s ) end
+	local db = function(s) if IsValid( deb ) then deb:PrintMessage( HUD_PRINTCONSOLE, s ) end end
 
 	local should_stop = 0 -- 0 inactive, 1 did a vowel, 2 did a consonant after vowel(s)
 	local consonant_count = 0
@@ -54,6 +60,7 @@ function util.babyName( str )
 	local was_special = false
 	local lasttime = ""
 	local lastchar = ""
+	local counting_vowels, counting_consonants = 0, 0
 
 	local curname = ""
 	for i = 1, string.len( str ) do
@@ -64,11 +71,12 @@ function util.babyName( str )
 		if isVowel( char ) then
 			db( "is vowel" )
 			consonant_count = 0
+			counting_vowels = counting_vowels + 1
 
 			db( "should stop is " .. tostring(should_stop ) )
 			if should_stop == 0 then
 				should_stop = 1
-				db( "setting should stop t 1" )
+				db( "setting should stop to 1" )
 			elseif should_stop == 2 then
 				local ending_e = false
 				if char == "e" then
@@ -78,7 +86,7 @@ function util.babyName( str )
 					end
 				end
 
-				if table.HasValue( foreign, char:lower() ) then
+				if table.HasValue( foreign, char:lower() ) or string.len( curname ) <= 2 then
 					should_stop = 1
 					was_special = true
 					jd = true
@@ -102,7 +110,7 @@ function util.babyName( str )
 			lastchar = char
 			db( "curname is now " .. curname )
 
-			if was_special and not jd then break end
+			if was_special and not jd and string.len( curname ) > 2 then db( "last char was special, stopping" ) break end
 
 			vowel_count = vowel_count + 1
 			if vowel_count >= 5 then
@@ -114,6 +122,7 @@ function util.babyName( str )
 			continue
 		else
 			vowel_count = 0
+			counting_consonants = counting_consonants + 1
 			db( "char isn't vowel or num, assuming consonant" )
 
 			if lastchar ~= "" and lastchar:lower() ~= lastchar:upper() and -- lastchar defined and has lower/upper variants
@@ -121,6 +130,12 @@ function util.babyName( str )
 				char:lower() ~= char:upper() and -- char has lower/upper variants
 				char == char:upper() then -- char is in upper variant
 				db( "lastchar is in lower variant with char in upper variant. casing separation. breaking.")
+				break
+			end
+
+			if counting_vowels > 0 and lasttype == "consonant" and lastchar ~= "" and not isVowel( lastchar ) and lastchar ~= char then
+				db( "breaking for second consonant" )
+				should_stop = 2
 				break
 			end
 
@@ -150,7 +165,7 @@ function util.babyName( str )
 	if curname == "" then curname = str:sub( 1, 5 ) end
 
 	local replace = table.Random( names )
-	replace = Format( replace[1], replace[2]( curname ) )
+	replace = Format( replace[1], replace[2]( curname ), replace[3] and replace[2]( curname ) or nil )
 
 	return replace
 end

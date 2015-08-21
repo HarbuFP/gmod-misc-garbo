@@ -35,7 +35,7 @@ function surface.fPlaySound( info )
 	if info.endround and GetConVarNumber( "ttt_atmosphere_endround" ) ~= 1 then return end
 
 	surface.PlaySound( info.file )
-	atmosphere:Play( "9BifiioaIos", info.artist, info.song, info.length, 0, CurTime(), true )
+	atmosphere:Play( "9BifiioaIos", info.artist, info.song, info.length, 0, CurTime(), true, true )
 end
 
 net.Receive( "atmosphere FakePlay", function()

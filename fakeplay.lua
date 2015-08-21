@@ -32,7 +32,10 @@ end
 
 function surface.fPlaySound( info )
 	if atmosphere.current and IsValid( atmosphere.panel ) then return end
-	if info.endround and GetConVarNumber( "ttt_atmosphere_endround" ) ~= 1 then return end
+	if info.endround then
+		if atmosphere.endround_music then return end
+		if GetConVarNumber( "ttt_atmosphere_endround" ) ~= 1 then return end
+	end
 
 	surface.PlaySound( info.file )
 	atmosphere:Play( "9BifiioaIos", info.artist, info.song, info.length, 0, CurTime(), true, true )

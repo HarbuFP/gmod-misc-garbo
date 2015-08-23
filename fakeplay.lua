@@ -17,7 +17,8 @@
 
 if SERVER then
 	AddCSLuaFile()
-
+	surface = surface or {}
+	
 	util.AddNetworkString( "atmosphere FakePlay" )
 	function surface.fPlaySound( info, ply )
 		if not atmosphere then return error( "Atmosphere isn't installed!" ) end
